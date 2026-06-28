@@ -421,5 +421,24 @@ const socialLinks = [
       });
     }
   </script>
+
+  <!-- Lightbox -->
+  <div id="lightbox-overlay" class="lightbox-overlay" onclick="this.classList.remove('active')">
+    <img id="lightbox-img" src="" alt="Vergrößertes Bild" />
+  </div>
+  <script>
+    document.addEventListener('click', function(e) {
+      const img = e.target.closest('.prose img, article img, .entry-content img');
+      if (img && !img.closest('a') && img.src && !img.src.includes('logo')) {
+        document.getElementById('lightbox-img').src = img.src;
+        document.getElementById('lightbox-overlay').classList.add('active');
+      }
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.getElementById('lightbox-overlay').classList.remove('active');
+      }
+    });
+  </script>
 </body>
 </html>
