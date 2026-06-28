@@ -63,6 +63,17 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 8px 24px rgba(0,0,0,0.15);
 }
 
+/* Videos: zentriert, schmaler */
+.prose iframe,
+.prose [data-youtube-placeholder],
+.prose .video-container {
+  display: block !important;
+  margin: 2rem auto !important;
+  max-width: 65% !important;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
 /* Lightbox Overlay */
 .lightbox-overlay {
   display: none;
