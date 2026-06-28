@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin '@tailwindcss/typography';
 
 /* Doggi-Dog Custom Theme – angepasst an Live-Farben */
 @theme {
@@ -10,8 +11,8 @@
   --color-dog-bg-alt: #fff9f3;
   --color-dog-text: #433931;
   --color-dog-text-muted: #6b645c;
-  --font-family-heading: 'Georgia', 'Times New Roman', serif;
-  --font-family-body: system-ui, -apple-system, sans-serif;
+  --font-family-heading: 'Newsreader', 'Georgia', 'Times New Roman', serif;
+  --font-family-body: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 /* Base Styles */
