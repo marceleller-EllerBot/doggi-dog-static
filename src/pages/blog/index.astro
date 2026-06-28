@@ -18,11 +18,20 @@ function formatDate(dateStr) {
 ---
 
 <Layout title="Blog" description="Geschichten und Erlebnisse mit Luna – Pfotenabenteuer auf Doggi-Dog.">
+  <!-- Hero Banner -->
+  <div class="relative overflow-hidden py-16 md:py-20 bg-cover bg-center" style="background-image:url('/images/Doggi-Dog-BAnner-2500-×-400-px.jpg');">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <nav class="text-sm text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] mb-4">
+        <a href="/" class="hover:text-white/80 transition-colors">Home</a>
+        <span class="mx-2">›</span>
+        <span class="text-white">Blog</span>
+      </nav>
+      <h1 class="text-4xl md:text-5xl font-bold text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">Blog</h1>
+      <p class="mt-3 text-lg text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">Geschichten, Tipps und Erlebnisse rund um das Leben mit Hund</p>
+    </div>
+  </div>
+
   <div class="max-w-6xl mx-auto px-4 py-12">
-    <h1 class="section-title">Blog</h1>
-    <p class="text-center text-[var(--color-text-muted)] mb-12">
-      Geschichten, Tipps und Erlebnisse rund um das Leben mit Hund
-    </p>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {posts.map((post) => {
         const cats = getCategoryNames(post.categories);

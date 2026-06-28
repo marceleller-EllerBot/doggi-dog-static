@@ -27,17 +27,22 @@ function formatDate(dateStr) {
 ---
 
 <Layout title={category.name} description={category.description || `Alle Beiträge aus der Kategorie ${category.name} auf Doggi-Dog.`}>
-  <div class="max-w-6xl mx-auto px-4 py-12">
-    <nav class="text-sm text-[var(--color-text-muted)] mb-6">
-      <a href="/" class="hover:text-[var(--color-primary)]">Home</a>
-      <span class="mx-2">›</span>
-      <span class="text-[var(--color-text)]">{category.name}</span>
-    </nav>
+  <!-- Hero Banner -->
+  <div class="relative overflow-hidden py-16 md:py-20 bg-cover bg-center" style="background-image:url('/images/Doggi-Dog-BAnner-2500-×-400-px.jpg');">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <nav class="text-sm text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] mb-4">
+        <a href="/" class="hover:text-white/80 transition-colors">Home</a>
+        <span class="mx-2">›</span>
+        <span class="text-white">{category.name}</span>
+      </nav>
+      <h1 class="text-4xl md:text-5xl font-bold text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">{category.name}</h1>
+      {category.description && (
+        <p class="mt-3 text-lg text-white/90 max-w-2xl mx-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{category.description}</p>
+      )}
+    </div>
+  </div>
 
-    <h1 class="section-title">{category.name}</h1>
-    {category.description && (
-      <p class="text-center text-[var(--color-text-muted)] max-w-2xl mx-auto mb-12">{category.description}</p>
-    )}
+  <div class="max-w-6xl mx-auto px-4 py-12">
 
     {catPosts.length === 0 ? (
       <div class="text-center py-12">
