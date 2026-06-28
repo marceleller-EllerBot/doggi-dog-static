@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+/* Doggi-Dog Custom Theme – angepasst an Live-Farben */
+@theme {
+  --color-dog-primary: #ff6b57;
+  --color-dog-primary-light: #ffbc7f;
+  --color-dog-secondary: #fff9f3;
+  --color-dog-accent: #ffbc7f;
+  --color-dog-bg: #ffffff;
+  --color-dog-bg-alt: #fff9f3;
+  --color-dog-text: #433931;
+  --color-dog-text-muted: #6b645c;
+  --font-family-heading: 'Georgia', 'Times New Roman', serif;
+  --font-family-body: system-ui, -apple-system, sans-serif;
+}
+
+/* Base Styles */
+body {
+  font-family: var(--font-family-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-heading);
+}
+
+/* Custom Components */
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background-color: var(--color-dog-primary);
+  color: white;
+}
+.btn-primary:hover {
+  background-color: var(--color-dog-primary-light);
+  transform: translateY(-1px);
+}
+
+.card {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.card:hover {
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.section-title::after {
+  content: '🐾';
+  display: block;
+  font-size: 1.2rem;
+  margin-top: 0.25rem;
+}

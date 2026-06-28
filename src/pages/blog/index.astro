@@ -1,0 +1,71 @@
+---
+// src/pages/blog/index.astro
+import Layout from '../../layouts/Layout.astro';
+import { posts, categories, getCatMap, img, media as mediaItems } from '../../data/index.js';
+
+const catMap = getCatMap();
+
+posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+function getCategoryNames(catIds) {
+  if (!catIds || !Array.isArray(catIds)) return [];
+  return catIds.map(id => catMap[id]).filter(Boolean);
+}
+
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString('de-DE', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+---
+
+<Layout title="Blog" description="Geschichten und Erlebnisse mit Luna – Pfotenabenteuer auf Doggi-Dog.">
+  <div class="max-w-6xl mx-auto px-4 py-12">
+    <h1 class="section-title">Blog</h1>
+    <p class="text-center text-[var(--color-text-muted)] mb-12">
+      Geschichten, Tipps und Erlebnisse rund um das Leben mit Hund
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {posts.map((post) => {
+        const cats = getCategoryNames(post.categories);
+        const excerpt = post.excerpt?.rendered?.replace(/<[^>]+>/g, '').trim() || '';
+        const date = formatDate(post.date);
+        const postImgSrc = post.featured_media ? img(post.featured_media) : null;
+        const postImgMeta = post.featured_media ? mediaItems.find(m => m.id === post.featured_media) : null;
+        return (
+          <article class="card">
+            <a href={`/blog/${post.slug}/`}>
+              <div class="aspect-video overflow-hidden bg-orange-100">
+                {postImgSrc ? (
+                  <img src={postImgSrc} alt={postImgMeta?.alt_text || post.title?.rendered || ''} class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center">
+                    <span class="text-5xl opacity-50">🐶</span>
+                  </div>
+                )}
+              </div>
+            </a>
+            <div class="p-5">
+              {cats.length > 0 && (
+                <a href={`/kategorie/${cats[0].slug}/`}
+                  class="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider hover:underline">
+                  {cats[0].name}
+                </a>
+              )}
+              <h2 class="mt-1">
+                <a href={`/blog/${post.slug}/`}
+                  class="text-lg font-bold text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors line-clamp-2">
+                  {post.title?.rendered || post.title}
+                </a>
+              </h2>
+              <p class="text-sm text-[var(--color-text-muted)] mt-2 line-clamp-3">{excerpt}</p>
+              <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+                <time class="text-xs text-[var(--color-text-muted)]">{date}</time>
+                <a href={`/blog/${post.slug}/`}
+                  class="text-sm font-medium text-[var(--color-primary)] hover:underline">mehr lesen →</a>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  </div>
+</Layout>

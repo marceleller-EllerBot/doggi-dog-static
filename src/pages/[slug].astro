@@ -1,0 +1,135 @@
+---
+// src/pages/[slug].astro
+import Layout from '../layouts/Layout.astro';
+import WpContent from '../components/WpContent.astro';
+import { posts, pages, media, getMediaMap, getImageMap, categories } from '../data/index.js';
+
+export async function getStaticPaths() {
+  const reserved = ['blog', 'kategorie', 'home'];
+  const postSlugs = new Set(posts.map(p => p.slug));
+  const staticPages = pages.filter(p => {
+    if (reserved.includes(p.slug)) return false;
+    if (postSlugs.has(p.slug)) return false;
+    return true;
+  });
+  return staticPages.map(page => ({
+    params: { slug: page.slug },
+    props: { page }
+  }));
+}
+
+const { page } = Astro.props;
+const mediaMap = getMediaMap();
+const imageMap = getImageMap();
+const title = page.title?.rendered || page.title;
+const featured = page.featured_media ? mediaMap[page.featured_media] : null;
+const excerpt = page.excerpt?.rendered?.replace(/<[^>]+>/g, '').trim().substring(0, 160) || '';
+const imgSrc = featured ? (imageMap[page.featured_media] || featured.source_url) : null;
+const slug = page.slug;
+
+// Strip PostX grid from WordPress rendered content (we use our own grid)
+const rawContent = page.content?.rendered || '';
+const gridStart = rawContent.indexOf('ultp-post-grid-block');
+let cleanContent = gridStart > -1 ? rawContent.substring(0, rawContent.lastIndexOf('<div', gridStart)) : rawContent;
+
+// Remove the banner image from content (it's now in the page hero)
+cleanContent = cleanContent.replace(/<figure[^>]*>.*?Doggi-Dog-BAnner.*?<\/figure>/is, '');
+cleanContent = cleanContent.replace(/<img[^>]*BAnner[^>]*>/gi, '');
+cleanContent = cleanContent.replace(/<figure[^>]*>.*?2500.*?400.*?<\/figure>/is, '');
+
+// Map page slugs to category slugs for post grids
+const pageCategoryMap = {
+  'rezepte-fuer-hunde': ['rezepte', 'hauptgerichte-rezepte', 'snack-goodie-oase', 'kuchen', 'eis-hundeeis', 'weihnachtsbaeckerei', 'schonkost', 'thermomix-rezepte'],
+  'hauptgerichte': ['hauptgerichte-rezepte'],
+  'snack-goodie-oase': ['snack-goodie-oase'],
+  'kuchen': ['kuchen'],
+  'eis': ['eis-hundeeis'],
+  'weihnachtsbaeckerei': ['weihnachtsbaeckerei'],
+  'schonkost': ['schonkost'],
+  'thermomix-rezepte': ['thermomix-rezepte'],
+  'tiergesundheit': ['tiergesundheit'],
+  'produkttests': ['produkttests'],
+  'urlaub-mit-hund': ['urlaub-mit-hund'],
+};
+
+// Build a lookup from category slug → ID
+const catSlugToId = {};
+categories.forEach(c => { catSlugToId[c.slug] = c.id; });
+
+// Get relevant category IDs for this page
+const relevantCatSlugs = pageCategoryMap[slug] || [];
+const relevantCatIds = relevantCatSlugs.map(s => catSlugToId[s]).filter(Boolean);
+
+// Get matching posts
+const gridPosts = posts
+  .filter(p => p.categories?.some(cid => relevantCatIds.includes(cid)))
+  .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString('de-DE', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+---
+
+<Layout title={title} description={excerpt || title}>
+  <!-- Page Hero mit Banner -->
+  <div class="relative overflow-hidden py-20 md:py-24 bg-cover bg-center" style="background-image:url('/images/Doggi-Dog-BAnner-2500-×-400-px.jpg');">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <nav class="text-sm text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] mb-4">
+        <a href="/" class="hover:text-white/80 transition-colors">Home</a>
+        <span class="mx-2">›</span>
+        <span>{title}</span>
+      </nav>
+      <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">{title}</h1>
+    </div>
+  </div>
+
+  <!-- Page Content -->
+  <div class="max-w-6xl mx-auto px-4 py-12">
+
+    <!-- Page Content -->
+    <div class="max-w-4xl mx-auto prose prose-lg prose-headings:font-bold prose-a:text-[var(--color-primary)] prose-img:rounded-xl">
+      <WpContent html={cleanContent} />
+    </div>
+
+    <!-- Post Grid (like original PostX grid) -->
+    {gridPosts.length > 0 && (
+      <section class="mt-12">
+        <h2 class="section-title">Beiträge aus dieser Kategorie</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {gridPosts.map(post => {
+            const mediaId = post.featured_media;
+            const img = mediaId ? mediaMap[mediaId] : null;
+            const imgSrc = img ? (imageMap[mediaId] || img.source_url) : null;
+            const excerpt = post.excerpt?.rendered?.replace(/<[^>]+>/g, '').trim().substring(0, 120) || '';
+            return (
+              <article class="card">
+                <a href={`/blog/${post.slug}/`}>
+                  {img ? (
+                    <img src={imgSrc || img.source_url} alt={img.alt_text || post.title?.rendered || ''}
+                      class="w-full aspect-video object-cover" loading="lazy" />
+                  ) : (
+                    <div class="aspect-video bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
+                      <span class="text-4xl opacity-50">🐶</span>
+                    </div>
+                  )}
+                </a>
+                <div class="p-4">
+                  <h3 class="font-bold text-base">
+                    <a href={`/blog/${post.slug}/`} class="text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors">
+                      {post.title?.rendered || post.title}
+                    </a>
+                  </h3>
+                  <p class="text-sm text-[var(--color-text-muted)] mt-1 line-clamp-2">{excerpt}</p>
+                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-gray-100 text-xs text-[var(--color-text-muted)]">
+                    <time>{formatDate(post.date)}</time>
+                    <a href={`/blog/${post.slug}/`} class="text-[var(--color-primary)] font-medium hover:underline">mehr →</a>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    )}
+  </div>
+</Layout>

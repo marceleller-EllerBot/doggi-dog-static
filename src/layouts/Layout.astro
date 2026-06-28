@@ -1,0 +1,425 @@
+---
+// src/layouts/Layout.astro
+import '../styles/global.css';
+import Search from '../components/Search.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  ogType?: string;
+  canonical?: string;
+  author?: string;
+  publishedTime?: string;
+  schema?: string;
+}
+
+const { title, description, image, ogType = 'website', canonical, author, publishedTime, schema } = Astro.props;
+const siteTitle = 'Doggi-Dog 🐶';
+const fullTitle = title === siteTitle ? title : `${title} – ${siteTitle}`;
+const defaultOgImage = '/images/og-image.png';
+const siteUrl = 'https://doggi-dog.com';
+
+// Navigation structure
+const navItems = [
+  { text: 'Doggi-Dog', href: '/' },
+  { text: 'Rezepte für Hunde', href: '/rezepte-fuer-hunde/',
+    children: [
+      { text: 'Hauptgerichte', href: '/kategorie/hauptgerichte-rezepte/' },
+      { text: 'Schonkost', href: '/kategorie/schonkost/' },
+      { text: 'Snack & Goodie Oase', href: '/kategorie/snack-goodie-oase/' },
+      { text: 'Kuchen', href: '/kategorie/kuchen/' },
+      { text: 'Eis / Hundeeis', href: '/kategorie/eis-hundeeis/' },
+      { text: 'Weihnachtsbäckerei', href: '/kategorie/weihnachtsbaeckerei/' },
+    ]
+  },
+  { text: 'Tiergesundheit', href: '/tiergesundheit/' },
+  { text: 'Produkttests', href: '/kategorie/produkttests/' },
+  { text: 'Urlaub mit Hund', href: '/kategorie/urlaub-mit-hund/' },
+  { text: 'Blog', href: '/blog/' },
+  { text: 'Videos', href: '/videos/' },
+  { text: 'Über uns', href: '/ueber-uns/',
+    children: [
+      { text: 'Kontakt', href: '/contact-2/' },
+    ]
+  },
+];
+
+const socialLinks = [
+  { name: 'Facebook', href: 'https://facebook.com/DoggiDogcom', icon: 'facebook' },
+  { name: 'Instagram', href: 'https://instagram.com/doggidogcom', icon: 'instagram' },
+  { name: 'YouTube', href: 'https://www.youtube.com/playlist?list=PLjZ-bCJOPkY8pG7NOettFx9Wq2uLFSHKG', icon: 'youtube' },
+  { name: 'Pinterest', href: 'https://pinterest.com/doggidogcom', icon: 'pinterest' },
+  { name: 'Twitter', href: 'https://twitter.com/doggidogcom', icon: 'twitter' },
+];
+---
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{fullTitle}</title>
+  <meta name="description" content={description || 'Glückliche Pfoten, glückliches Herz – Doggi-Dog, alles rund um den Hund.'} />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description || 'Alles rund um den Hund – Pfotenabenteuer mit Luna'} />
+  <meta property="og:type" content={ogType} />
+  <meta property="og:url" content={canonical || Astro.url} />
+  <meta property="og:image" content={image || defaultOgImage} />
+  <meta property="og:locale" content="de_DE" />
+  <meta property="og:site_name" content="Doggi-Dog" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={fullTitle} />
+  <meta name="twitter:description" content={description || 'Alles rund um den Hund – Pfotenabenteuer mit Luna'} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  {author && <meta name="author" content={author} />}
+  {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+  {/* Schema.org JSON-LD */}
+  {schema && <script type="application/ld+json" set:html={schema} />}
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="sitemap" href="/sitemap-index.xml" />
+  <link rel="stylesheet" href="/cookieconsent.css" />
+</head>
+<body class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
+  <!-- Skip to content -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-primary)] focus:text-white focus:rounded-lg">
+    Zum Inhalt springen
+  </a>
+
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-100 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 transition-colors">
+          <img src="/images/cropped-Logo-Doggi-Dog.png" alt="Doggi-Dog, Logo, Pfotenabenteuer" class="h-10 w-auto" />
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden lg:block" aria-label="Hauptnavigation">
+          <ul class="flex items-center gap-1">
+            {
+              navItems.map((item) => (
+                <li class="relative group">
+                  <a
+                    href={item.href}
+                    class="px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:text-[var(--color-primary)] rounded-lg hover:bg-orange-50 transition-colors"
+                  >
+                    {item.text}
+                  </a>
+                  {item.children && (
+                    <ul class="absolute top-full left-0 mt-1 w-52 bg-white rounded-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2">
+                      {item.children.map((child) => (
+                        <li>
+                          <a href={child.href} class="block px-4 py-2 text-sm text-[var(--color-text)] hover:text-[var(--color-primary)] hover:bg-orange-50">
+                            {child.text}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
+        <!-- Search + Mobile Menu Button -->
+        <div class="flex items-center gap-2">
+          <button data-search-trigger class="p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Suche öffnen (Strg+K)">
+            <svg class="w-5 h-5 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+          </button>
+          <button id="menu-toggle" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Menü öffnen">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div id="mobile-menu" class="lg:hidden hidden border-t border-gray-100 bg-white">
+      <nav class="max-w-6xl mx-auto px-4 py-4">
+        <ul class="space-y-1">
+          {
+            navItems.map((item) => (
+              <li>
+                <a href={item.href} class="block px-3 py-2 rounded-lg font-medium text-[var(--color-text)] hover:text-[var(--color-primary)] hover:bg-orange-50">
+                  {item.text}
+                </a>
+                {item.children && (
+                  <ul class="ml-4 mt-1 space-y-1">
+                    {item.children.map((child) => (
+                      <li>
+                        <a href={child.href} class="block px-3 py-1.5 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-primary)]">
+                          {child.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main-content" class="min-h-[60vh]">
+    <slot />
+  </main>
+
+  <!-- Banner als dezenter Hintergrund im Footer -->
+  <footer class="bg-[var(--color-bg-alt)] border-t border-gray-200 mt-16 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-[0.04] pointer-events-none bg-cover bg-center" style="background-image:url('/images/Doggi-Dog-BAnner-2500-×-400-px.jpg');"></div>
+    <div class="max-w-6xl mx-auto px-4 py-12 relative">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Brand -->
+        <div>
+          <a href="/" class="block">
+            <img src="/images/Logo-mit-hintergrund-Doggi-Dog.png" alt="Doggi-Dog, Logo, Pfotenabenteuer" class="h-12 w-auto" />
+          </a>
+          <p class="mt-2 text-sm text-[var(--color-text-muted)]">
+            Euer gemeinsames Pfotenabenteuer beginnt hier!
+          </p>
+          <div class="flex gap-2 mt-4">
+            {socialLinks.map((link) => (
+              <a href={link.href} target="_blank" rel="noopener noreferrer"
+                class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-200 hover:scale-110 transition-all duration-200 shadow-sm hover:shadow-md"
+                aria-label={link.name}>
+                {link.icon === 'facebook' && <svg viewBox="0 0 24 24" class="w-5 h-5" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>}
+                {link.icon === 'instagram' && <svg viewBox="0 0 24 24" class="w-5 h-5" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>}
+                {link.icon === 'youtube' && <svg viewBox="0 0 24 24" class="w-5 h-5" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186 31.39 31.39 0 000 12a31.39 31.39 0 00.502 5.814 3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136A31.39 31.39 0 0024 12a31.39 31.39 0 00-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>}
+                {link.icon === 'pinterest' && <svg viewBox="0 0 24 24" class="w-5 h-5" fill="#BD081C"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146 1.124.347 2.317.535 3.554.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z"/></svg>}
+                {link.icon === 'twitter' && <svg viewBox="0 0 24 24" class="w-5 h-5" fill="#1DA1F2"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h3 class="font-bold text-sm uppercase tracking-wider text-[var(--color-text-muted)] mb-3">Entdecken</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="/rezepte-fuer-hunde/" class="hover:text-[var(--color-primary)]">Rezepte für Hunde</a></li>
+            <li><a href="/tiergesundheit/" class="hover:text-[var(--color-primary)]">Tiergesundheit</a></li>
+            <li><a href="/produkttests/" class="hover:text-[var(--color-primary)]">Produkttests</a></li>
+            <li><a href="/blog/" class="hover:text-[var(--color-primary)]">Blog</a></li>
+            <li><a href="/videos/" class="hover:text-[var(--color-primary)]">Videos</a></li>
+          </ul>
+        </div>
+
+        <!-- Legal -->
+        <div>
+          <h3 class="font-bold text-sm uppercase tracking-wider text-[var(--color-text-muted)] mb-3">Rechtliches</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="/impressum/" class="hover:text-[var(--color-primary)]">Impressum</a></li>
+            <li><a href="/datenschutzerklaerung/" class="hover:text-[var(--color-primary)]">Datenschutzerklärung</a></li>
+            <li><a href="/contact-2/" class="hover:text-[var(--color-primary)]">Kontakt</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-8 pt-8 border-t border-gray-200 text-center text-sm text-[var(--color-text-muted)]">
+        <p>&copy; {new Date().getFullYear()} Doggi-Dog – Glückliche Pfoten, glückliches Herz</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Search Overlay -->
+  <Search />
+
+  <!-- Cookie Consent Script -->
+  <script src="/cookieconsent.umd.js" defer></script>
+
+  <!-- Cookie Consent Initialisierung + YouTube Manager -->
+  <script>
+    // Wait for CookieConsent to be ready
+    function initCookieConsent() {
+      if (typeof CookieConsent === 'undefined') {
+        setTimeout(initCookieConsent, 200);
+        return;
+      }
+
+      CookieConsent.run({
+      categories: {
+        necessary: {
+          enabled: true,
+          readOnly: true,
+          description: 'Notwendige Cookies für den Betrieb der Seite.',
+        },
+        marketing: {
+          enabled: false,
+          readOnly: false,
+          description: 'Ermöglicht Google AdSense und YouTube-Videos.',
+        },
+      },
+      language: {
+        default: 'de',
+        translations: {
+          de: {
+            consentModal: {
+              title: '🍪 Cookie-Einstellungen',
+              description: 'Diese Website nutzt Cookies für Werbung (AdSense) und YouTube-Videos. Bitte wähle, welche Cookies du zulassen möchtest.',
+              acceptAllBtn: 'Alle akzeptieren',
+              acceptNecessaryBtn: 'Nur notwendige',
+              showPreferencesBtn: 'Einstellungen anpassen',
+              footer: '<a href="/impressum/">Impressum</a> · <a href="/datenschutzerklaerung/">Datenschutz</a>',
+            },
+            preferencesModal: {
+              title: 'Cookie-Einstellungen',
+              acceptAllBtn: 'Alle akzeptieren',
+              acceptNecessaryBtn: 'Nur notwendige',
+              savePreferencesBtn: 'Auswahl speichern',
+              closeIconLabel: 'Schließen',
+              sections: [
+                {
+                  title: 'Notwendig',
+                  description: 'Diese Cookies sind für den Betrieb der Seite erforderlich.',
+                  linkedCategory: 'necessary',
+                },
+                {
+                  title: 'Marketing & Externe Medien',
+                  description: 'Ermöglicht Google AdSense und das Abspielen von YouTube-Videos.',
+                  linkedCategory: 'marketing',
+                },
+                {
+                  title: 'Mehr Informationen',
+                  description: 'Weitere Details findest du in unserer <a href="/datenschutzerklaerung/">Datenschutzerklärung</a>.',
+                },
+              ],
+            },
+          },
+        },
+      },
+      guiOptions: {
+        consentModal: {
+          layout: 'cloud',
+          position: 'bottom center',
+          equalWeightButtons: true,
+          flipButtons: false,
+        },
+        preferencesModal: {
+          layout: 'box',
+          position: 'right',
+          equalWeightButtons: true,
+          flipButtons: false,
+        },
+      },
+      onFirstConsent: ({ cookie }) => {
+        handleConsent(cookie);
+      },
+      onConsent: ({ cookie }) => {
+        handleConsent(cookie);
+      },
+      onChange: ({ changedCategories, cookie }) => {
+        handleConsent(cookie);
+      },
+    });
+
+    function handleConsent(cookie) {
+      const marketing = CookieConsent.acceptedCategory('marketing');
+
+      // --- Google AdSense laden ---
+      if (marketing) {
+        if (!document.querySelector('script[src*="adsbygoogle"]')) {
+          const s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3329881012501540';
+          s.crossOrigin = 'anonymous';
+          document.head.appendChild(s);
+        }
+      }
+
+      // --- YouTube Embeds aktivieren/deaktivieren ---
+      document.querySelectorAll('[data-youtube-placeholder]').forEach(el => {
+        const videoId = el.dataset.youtubeId;
+        if (marketing) {
+          const iframe = document.createElement('iframe');
+          iframe.width = '560';
+          iframe.height = '315';
+          iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}`;
+          iframe.title = el.dataset.youtubeTitle || 'YouTube Video';
+          iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+          iframe.allowFullscreen = true;
+          iframe.className = 'w-full aspect-video rounded-xl';
+          el.parentNode.replaceChild(iframe, el);
+        } else {
+          // Show placeholder again
+          if (el.tagName !== 'DIV' || !el.hasAttribute('data-youtube-placeholder')) {
+            const placeholder = createYouTubePlaceholder(videoId, el.dataset.youtubeTitle);
+            el.parentNode.replaceChild(placeholder, el);
+          }
+        }
+      });
+    }
+
+    function createYouTubePlaceholder(videoId, title) {
+      const div = document.createElement('div');
+      div.setAttribute('data-youtube-placeholder', '');
+      div.dataset.youtubeId = videoId;
+      div.dataset.youtubeTitle = title || 'YouTube Video';
+      div.className = 'relative w-full aspect-video bg-gray-100 rounded-xl flex items-center justify-center cursor-pointer overflow-hidden';
+      div.innerHTML = `
+        <div class="text-center p-6">
+          <div class="text-5xl mb-3 opacity-30">🎬</div>
+          <p class="text-sm text-gray-500 mb-1">YouTube Video</p>
+          <p class="text-xs text-gray-400">${title || ''}</p>
+          <p class="text-xs text-gray-400 mt-3">⚠️ Cookie-Consent erforderlich</p>
+        </div>
+      `;
+      // Click opens YouTube directly as fallback
+      div.addEventListener('click', () => {
+        window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+      });
+      return div;
+    }
+
+    // Run YouTube setup when DOM is ready and after CookieConsent is initialized
+    function setupYouTubeConsent() {
+      const marketing = CookieConsent.acceptedCategory('marketing');
+      document.querySelectorAll('iframe[src*="youtube"]').forEach(iframe => {
+        const src = iframe.src || '';
+        const match = src.match(/(?:youtube\.com\/embed\/|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+        const videoId = match ? match[1] : (iframe.title || 'video').replace(/\s+/g, '-');
+        const title = iframe.title || 'YouTube Video';
+
+        if (!marketing) {
+          const placeholder = createYouTubePlaceholder(videoId, title);
+          iframe.parentNode.replaceChild(placeholder, iframe);
+        }
+      });
+    }
+
+    // Run on load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(setupYouTubeConsent, 500);
+      });
+    } else {
+      setTimeout(setupYouTubeConsent, 500);
+    }
+    } // end initCookieConsent
+
+    // Start
+    initCookieConsent();
+  </script>
+
+  <!-- Mobile Menu Script -->
+  <script>
+    const toggle = document.getElementById('menu-toggle');
+    const menu = document.getElementById('mobile-menu');
+    if (toggle && menu) {
+      toggle.addEventListener('click', () => {
+        menu.classList.toggle('hidden');
+        toggle.setAttribute('aria-label', menu.classList.contains('hidden') ? 'Menü öffnen' : 'Menü schließen');
+      });
+    }
+  </script>
+</body>
+</html>

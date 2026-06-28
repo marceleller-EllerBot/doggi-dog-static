@@ -1,0 +1,168 @@
+---
+// src/pages/blog/[...slug].astro
+import Layout from '../../layouts/Layout.astro';
+import WpContent from '../../components/WpContent.astro';
+import { posts, categories, media, getCatMap, getMediaMap, getImageMap } from '../../data/index.js';
+
+const catMap = getCatMap();
+const mediaMap = getMediaMap();
+const imageMap = getImageMap();
+
+export async function getStaticPaths() {
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post }
+  }));
+}
+
+const { post } = Astro.props;
+const catNames = (post.categories || []).map(id => catMap[id]).filter(Boolean);
+const featured = post.featured_media ? mediaMap[post.featured_media] : null;
+const dateFormatted = new Date(post.date).toLocaleDateString('de-DE', {
+  year: 'numeric', month: 'long', day: 'numeric'
+});
+const excerpt = post.excerpt?.rendered?.replace(/<[^>]+>/g, '').trim().substring(0, 160) || '';
+const title = post.title?.rendered || post.title;
+const imgSrc = featured ? (imageMap[post.featured_media] || featured.source_url) : null;
+
+const relatedPosts = posts
+  .filter(p => p.id !== post.id && p.categories?.some(c => post.categories?.includes(c)))
+  .slice(0, 3);
+
+// --- Schema.org Article JSON-LD ---
+const articleSchema = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": title,
+  "description": excerpt,
+  "image": imgSrc || '/images/og-image.png',
+  "author": {
+    "@type": "Person",
+    "name": "Marcel Eller",
+    "url": "https://doggi-dog.com/ueber-uns/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://doggi-dog.com/#organization",
+    "name": "Doggi-Dog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/logo-dogge.png"
+    }
+  },
+  "datePublished": post.date,
+  "dateModified": post.modified || post.date,
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": `https://doggi-dog.com/blog/${post.slug}/`
+  }
+});
+---
+
+<Layout title={title} description={excerpt} ogType="article"
+  canonical={`https://doggi-dog.com/blog/${post.slug}/`}
+  author="Marcel Eller"
+  publishedTime={post.date}
+  schema={articleSchema}>
+  <article class="max-w-4xl mx-auto px-4 py-12">
+    <nav class="text-sm text-[var(--color-text-muted)] mb-6">
+      <a href="/" class="hover:text-[var(--color-primary)]">Home</a>
+      <span class="mx-2">›</span>
+      <a href="/blog/" class="hover:text-[var(--color-primary)]">Blog</a>
+      <span class="mx-2">›</span>
+      <span class="text-[var(--color-text)]">{title}</span>
+    </nav>
+
+    <header class="mb-8">
+      {catNames.length > 0 && (
+        <div class="flex flex-wrap gap-2 mb-3">
+          {catNames.map(cat => (
+            <a href={`/kategorie/${cat.slug}/`}
+              class="text-xs font-semibold text-[var(--color-primary)] bg-orange-50 px-3 py-1 rounded-full hover:bg-orange-100 transition-colors">
+              {cat.name}
+            </a>
+          ))}
+        </div>
+      )}
+      <h1 class="text-3xl md:text-4xl font-bold leading-tight">{title}</h1>
+      <div class="flex items-center gap-4 mt-4 text-sm text-[var(--color-text-muted)]">
+        <time datetime={post.date}>{dateFormatted}</time>
+        <span>🐾</span>
+      </div>
+    </header>
+
+    {featured && imgSrc && (
+      <div class="mb-8 rounded-2xl overflow-hidden shadow-md">
+        <img src={imgSrc} alt={featured.alt_text || title} class="w-full h-auto" loading="eager" />
+      </div>
+    )}
+
+    <div class="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-[var(--color-primary)] prose-img:rounded-xl prose-img:shadow-md">
+      <WpContent html={post.content?.rendered || ''} />
+    </div>
+
+    <!-- Comments (Giscus) -->
+    <section class="mt-16 pt-8 border-t border-gray-200">
+      <h2 class="section-title">Kommentare</h2>
+      <div class="giscus-wrapper mt-4"></div>
+      <script src="https://giscus.app/client.js"
+        data-repo="DEIN_GITHUB_USERNAME/DEIN_REPO"
+        data-repo-id="NOCH_ERMITTELN"
+        data-category="Announcements"
+        data-category-id="NOCH_ERMITTELN"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="de"
+        crossorigin="anonymous"
+        async>
+      </script>
+    </section>
+
+    {relatedPosts.length > 0 && (
+      <section class="mt-16 pt-8 border-t border-gray-200">
+        <h2 class="section-title">Das könnte euch auch interessieren</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {relatedPosts.map(rp => (
+            <a href={`/blog/${rp.slug}/`} class="card p-4 hover:shadow-md transition-shadow">
+              <h3 class="font-bold text-sm text-[var(--color-text)] hover:text-[var(--color-primary)]">
+                {rp.title?.rendered || rp.title}
+              </h3>
+              <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                {new Date(rp.date).toLocaleDateString('de-DE')}
+              </p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <nav class="flex justify-between mt-12 pt-6 border-t border-gray-200">
+      <div>
+        {(() => {
+          const idx = posts.findIndex(p => p.id === post.id);
+          const prev = posts[idx + 1];
+          return prev ? (
+            <a href={`/blog/${prev.slug}/`} class="text-sm text-[var(--color-primary)] hover:underline">
+              ← {prev.title?.rendered || prev.title}
+            </a>
+          ) : null;
+        })()}
+      </div>
+      <div>
+        {(() => {
+          const idx = posts.findIndex(p => p.id === post.id);
+          const next = posts[idx - 1];
+          return next ? (
+            <a href={`/blog/${next.slug}/`} class="text-sm text-[var(--color-primary)] hover:underline">
+              {next.title?.rendered || next.title} →
+            </a>
+          ) : null;
+        })()}
+      </div>
+    </nav>
+  </article>
+</Layout>

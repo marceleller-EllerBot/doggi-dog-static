@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "description": "",
+    "name": "Allgemein",
+    "slug": "allgemein",
+    "parent": 0
+  },
+  {
+    "id": 102,
+    "description": "",
+    "name": "Eis",
+    "slug": "eis-hundeeis",
+    "parent": 15
+  },
+  {
+    "id": 157,
+    "description": "",
+    "name": "Freizeit mit Hund",
+    "slug": "freizeit-mit-hund",
+    "parent": 0
+  },
+  {
+    "id": 58,
+    "description": "",
+    "name": "Hauptgerichte",
+    "slug": "hauptgerichte-rezepte",
+    "parent": 15
+  },
+  {
+    "id": 150,
+    "description": "",
+    "name": "Kuchen",
+    "slug": "kuchen",
+    "parent": 15
+  },
+  {
+    "id": 29,
+    "description": "",
+    "name": "Produkttests",
+    "slug": "produkttests",
+    "parent": 0
+  },
+  {
+    "id": 15,
+    "description": "",
+    "name": "Rezepte für den Hund",
+    "slug": "rezepte",
+    "parent": 0
+  },
+  {
+    "id": 80,
+    "description": "",
+    "name": "Schonkost",
+    "slug": "schonkost",
+    "parent": 15
+  },
+  {
+    "id": 28,
+    "description": "",
+    "name": "Snack &amp; Goodie Oase",
+    "slug": "snack-goodie-oase",
+    "parent": 15
+  },
+  {
+    "id": 218,
+    "description": "",
+    "name": "Tiergesundheit",
+    "slug": "tiergesundheit",
+    "parent": 0
+  },
+  {
+    "id": 130,
+    "description": "",
+    "name": "Urlaub mit Hund",
+    "slug": "urlaub-mit-hund",
+    "parent": 0
+  },
+  {
+    "id": 21,
+    "description": "",
+    "name": "Weihnachtsbäckerei",
+    "slug": "weihnachtsbaeckerei",
+    "parent": 15
+  }
+]

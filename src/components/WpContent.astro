@@ -1,0 +1,22 @@
+---
+// src/components/WpContent.astro
+// Renders WordPress HTML content safely, stripping Gutenberg comments
+export interface Props {
+  html: string;
+}
+
+const { html } = Astro.props;
+
+// Clean up Gutenberg comments and sanitize HTML
+const cleaned = html
+  .replace(/<!-- \/?wp:[a-zA-Z\/_-]+[\s\S]*?-->/g, '')  // Remove Gutenberg comments
+  .replace(/<!-- \/?wp:block[\s\S]*?-->/g, '')
+  .replace(/class="wp-block-[^"]*"/g, '')  // Remove wp-block classes
+  .replace(/class="has-[^"]*"/g, '')  // Remove has-* classes
+  .replace(/class="is-style-[^"]*"/g, '')
+  .replace(/\s*class=""/g, '')  // Remove empty class attributes
+  .replace(/\s*style="[^"]*"/g, '')  // Remove inline styles from WP
+  .trim();
+---
+
+<fragment set:html={cleaned} />

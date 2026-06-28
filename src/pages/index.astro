@@ -1,0 +1,215 @@
+---
+// src/pages/index.astro
+import Layout from '../layouts/Layout.astro';
+import { posts, categories, getCatMap, img, media as mediaItems } from '../data/index.js';
+
+const catMap = getCatMap();
+
+const latestPosts = [...posts]
+  .sort((a, b) => new Date(b.date) - new Date(a.date))
+  .slice(0, 6);
+
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString('de-DE', {
+    year: 'numeric', month: 'long', day: 'numeric'
+  });
+}
+
+function getPostImage(post) {
+  if (!post.featured_media) return null;
+  const src = img(post.featured_media);
+  const m = mediaItems.find(m => m.id === post.featured_media);
+  return { src, alt: m?.alt_text || post.title?.rendered || '' };
+}
+
+function getCatImage(title) {
+  const map = {
+    'Rezepte für den Hund': { src: '/images/Collage_Fotor-1-scaled.jpg', alt: 'Luna Maiskekse Genuss Rezept' },
+    'Tiergesundheit': { src: '/images/Tiergesundheit-Pfotenherz-Gesundheit-fuer-Dein-Tier-Heftbestellung-Seitenbild-Doggi-Dog.com_.png', alt: 'Tiergesundheit Pfotenherz' },
+    'Blog': { src: '/images/IMG_1135-scaled.jpeg', alt: 'Lagotto Doggi-Dog italienischer Wasserhund Luna Pfotenabenteuer' },
+    'Videos': { src: '/images/IMG_7203-scaled.jpeg', alt: 'Steg Wasser Urlaub Natur Makkum Ferienhaus Schakelvilla' },
+    'Produkttests': { src: '/images/IMG_6522-scaled.jpeg', alt: 'schlafen alle Varianten Lagotto Doggi-Dog' },
+    'Urlaub mit Hund': { src: '/images/Unsere-Luna-spielt-mit-einem-Welpen-Doggi-Dog.com_.jpg', alt: 'Urlaub mit Hund Luna am Strand' },
+  };
+  return map[title] || null;
+}
+
+// --- Schema.org Organization JSON-LD ---
+const organizationSchema = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": ["LocalBusiness", "Organization"],
+  "@id": "https://doggi-dog.com/#organization",
+  "name": "Doggi-Dog",
+  "url": "https://doggi-dog.com",
+  "logo": {
+    "@type": "ImageObject",
+    "@id": "https://doggi-dog.com/#logo",
+    "url": "/images/logo-dogge.png",
+    "contentUrl": "/images/logo-dogge.png",
+    "caption": "Doggi-Dog",
+    "inLanguage": "de",
+    "width": "500",
+    "height": "453"
+  },
+  "image": "/images/og-image.png",
+  "description": "Glückliche Pfoten, glückliches Herz – Doggi-Dog, alles rund um den Hund.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "DE"
+  }
+});
+
+const siteTitle = 'Doggi-Dog 🐶';
+const categoryCards = [
+  { title: 'Rezepte für den Hund', slug: '/rezepte-fuer-hunde/', desc: 'Leckere Rezepte für eure Vierbeiner' },
+  { title: 'Tiergesundheit', slug: '/tiergesundheit/', desc: 'Tipps für die Gesundheit eures Hundes' },
+  { title: 'Blog', slug: '/blog/', desc: 'Geschichten und Erlebnisse mit Luna' },
+  { title: 'Videos', slug: '/videos/', desc: 'Luna in Aktion erleben' },
+  { title: 'Produkttests', slug: '/kategorie/produkttests/', desc: 'Produkte im Test für euren Hund' },
+  { title: 'Urlaub mit Hund', slug: '/kategorie/urlaub-mit-hund/', desc: 'Reiseziele und Tipps' },
+];
+---
+
+<Layout title={siteTitle} description="Glückliche Pfoten, glückliches Herz – Doggi-Dog, alles rund um den Hund. Luna, der italienische Wasserhund, und ihre Pfotenabenteuer." canonical="https://doggi-dog.com/" schema={organizationSchema}>
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+    <div class="absolute inset-0 opacity-15 bg-cover bg-center" style="background-image:url('/images/Doggi-Dog-BAnner-2500-×-400-px.jpg');"></div>
+    <div class="relative max-w-6xl mx-auto px-4 py-12 md:py-16">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="text-center md:text-left">
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--color-text)] mb-4">
+            Glückliche Pfoten,<br />
+            <span class="text-[var(--color-primary)]">glückliches Herz</span>
+          </h1>
+          <p class="text-lg md:text-xl text-[var(--color-text-muted)] max-w-xl mb-8">
+            Doggi-Dog, alles rund um den Hund. Pfotenabenteuer mit Luna, dem italienischen Wasserhund.
+          </p>
+          <a href="/blog/" class="btn btn-primary text-lg">
+            Entdecke unsere Geschichten 🐾
+          </a>
+        </div>
+        <div class="flex justify-center md:justify-end">
+          <img
+            src="/images/cropped-IMG_0438-scaled-1.jpeg"
+            alt="Lagotto, Doggi-Dog, italienischer Wasserhund, Luna, Pfotenabenteuer"
+            class="w-full max-w-lg h-auto rounded-2xl shadow-lg object-cover"
+            width="600"
+            height="400"
+            loading="eager"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Category Grid -->
+  <section class="max-w-6xl mx-auto px-4 py-16">
+    <h2 class="section-title">Entdecke Doggi-Dog 🐾</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {categoryCards.map((cat) => {
+        const catImg = getCatImage(cat.title);
+        return (
+          <a href={cat.slug} class="card group overflow-hidden">
+            <div class="aspect-[4/3] overflow-hidden bg-orange-100">
+              {catImg ? (
+                <img
+                  src={catImg.src}
+                  alt={catImg.alt}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="w-full h-full flex items-center justify-center text-5xl">🐾</div>
+              )}
+            </div>
+            <div class="p-4">
+              <h3 class="text-lg font-bold text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors">
+                {cat.title}
+              </h3>
+              <p class="text-sm text-[var(--color-text-muted)] mt-1">{cat.desc}</p>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- Welcome Section with Claudia -->
+  <section class="bg-[var(--color-bg-alt)]">
+    <div class="max-w-6xl mx-auto px-4 py-16">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="order-2 md:order-1">
+          <h2 class="section-title text-left">Hey! Ich bin Claudia 🐾</h2>
+          <h3 class="text-xl font-bold text-[var(--color-primary)] mb-6">
+            Herzlich Willkommen auf Doggi-Dog.com! Die Internetseite, wo das gemeinsame Pfotenabenteuer beginnt.
+          </h3>
+          <p class="text-[var(--color-text-muted)] leading-relaxed mb-6">
+            Ich freue mich, Euch unsere Website vorstellen zu dürfen und gemeinsam mit euch auf Pfotenabenteuern zu gehen.
+            Auf der Startseite begrüßt euch Luna, unsere italienische Wasserhündin.
+            Ich wünsche euch ganz viel Spaß beim Stöbern. Vielen lieben Dank, dass Ihr Doggi-Dog besucht.
+          </p>
+          <a href="/ueber-uns/" class="text-[var(--color-primary)] font-semibold hover:underline">
+            Mehr über uns →</a>
+        </div>
+        <div class="order-1 md:order-2 flex justify-center">
+          <img
+            src="/images/IMG_6365-scaled.jpeg"
+            alt="Lagotto Doggi-Dog italienischer Wasserhund Luna Pfotenabenteuer"
+            class="w-full max-w-sm h-auto rounded-2xl shadow-lg object-cover"
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest Posts -->
+  <section class="max-w-6xl mx-auto px-4 py-16">
+    <h2 class="section-title">Aktuelle Geschichten 🐾</h2>
+    <p class="text-center text-[var(--color-text-muted)] mb-8">
+      Die neuesten Abenteuer von Luna und Tipps für eure Vierbeiner
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {latestPosts.map((post) => {
+        const postCats = (post.categories || []).map(id => catMap[id]).filter(Boolean);
+        const excerpt = post.excerpt?.rendered?.replace(/<[^>]+>/g, '').trim().substring(0, 120) || '';
+        const postImg = getPostImage(post);
+        return (
+          <article class="card">
+            <a href={`/blog/${post.slug}/`}>
+              <div class="aspect-video overflow-hidden bg-orange-100">
+                {postImg && postImg.src ? (
+                  <img
+                    src={postImg.src}
+                    alt={postImg.alt}
+                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center">
+                    <span class="text-4xl opacity-50">🐶</span>
+                  </div>
+                )}
+              </div>
+            </a>
+            <div class="p-5">
+              {postCats.length > 0 && (
+                <p class="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider mb-1">{postCats[0].name}</p>
+              )}
+              <h3 class="font-bold">
+                <a href={`/blog/${post.slug}/`} class="text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors">
+                  {post.title?.rendered || post.title}
+                </a>
+              </h3>
+              <p class="text-sm text-[var(--color-text-muted)] mt-2 line-clamp-2">{excerpt}</p>
+              <div class="flex justify-between items-center mt-3 pt-2 border-t border-gray-100 text-xs text-[var(--color-text-muted)]">
+                <time>{formatDate(post.date)}</time>
+                <a href={`/blog/${post.slug}/`} class="text-[var(--color-primary)] font-medium hover:underline">mehr →</a>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  </section>
+</Layout>
